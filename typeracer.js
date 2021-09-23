@@ -177,5 +177,4 @@ function endMeasurement() {
     accuracyContainer.innerHTML = `${accuracy}%`;
 }
 
-
 initializeWords();
