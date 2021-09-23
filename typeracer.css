@@ -1,0 +1,96 @@
+.project-container {
+    font-family: "Avenir", serif;
+    position: relative;
+    top: 100px;
+    left: 12.5%;
+    width: 75%;
+    height: fit-content;
+    background-color: burlywood;
+}
+
+#information-container {
+    position: relative;
+    font-size: 19px;
+    float: top;
+    height: 50px;
+    width: 100%;
+}
+
+.word-count-container {
+    width: 30%;
+    height: 100%;
+    padding-top: 20px;
+    padding-left: 5%;
+    float: left;
+}
+
+.word-count-select {
+    font-size: 17px;
+    padding-left: 10px;
+    border-radius: 5px;
+}
+
+#statistics-container {
+    width: 65%;
+    height: 100%;
+    padding-left: 35%;
+}
+
+td, th {
+    padding-right: 15px;
+    padding-left: 15px;
+}
+
+.table-data {
+    text-align: center;
+    background-color: bisque;
+}
+
+.words-container {
+    width: available;
+    height: 50%;
+    font-size: 22px;
+    border: 1pt solid;
+    border-radius: 15px;
+    margin-top: 20px;
+    margin-bottom: 30px;
+    padding: 15px;
+    overflow: auto;
+    background-color: gray;
+}
+
+.current-word {
+    float: left;
+}
+
+span#written-word {
+    float: left;
+    width: fit-content;
+    white-space: pre-wrap;
+    background-color: lightgreen;
+}
+
+span#current-character {
+    float: left;
+    width: fit-content;
+    white-space: pre-wrap;
+    background-color: aliceblue;
+}
+
+span#unwritten-word {
+    float: left;
+    width: fit-content;
+    white-space: pre-wrap;
+}
+
+button {
+    position: relative;
+    font-family: "Avenir", serif;
+    font-size: 18px;
+    border-radius: 4px;
+    padding: 3px 15px;
+}
+
+body {
+    background-color: cadetblue;
+}
