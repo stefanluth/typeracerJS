@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
     <link rel="stylesheet" href="typeracer.css">
     <meta charset="UTF-8">
@@ -7,21 +7,24 @@
 </head>
 <body>
 <div class="project-container">
-    <div id="information-container">
+    <div id="information-container-top">
         <div class="word-count-container">
-            <label for="wordCountSelect">words: </label>
-            <select class="word-count-select" name="word-count-select" id="wordCountSelect" onchange="initializeWords()">
-                <option value="3">3</option>
-                <option value="5">5</option>
-                <option value="10">10</option>
-                <option value="25">25</option>
-                <option value="50">50</option>
-                <option value="75">75</option>
-                <option value="100">100</option>
-            </select>
+            <div class="word-count-container" id="word-count-container">
+                <label id="word-count-label" for="wordCountSelect">words: </label>
+                <select class="word-count-select" name="word-count-select" id="wordCountSelect"
+                        onchange="initializeWords()">
+                    <option value="3">3</option>
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="75">75</option>
+                    <option value="100">100</option>
+                </select>
+            </div>
         </div>
         <div class="statistics" id="statistics-container">
-            <table>
+            <table id="current-run-statistics">
                 <tr>
                     <th>time</th>
                     <th>cps</th>
@@ -40,7 +43,56 @@
         <div class="current-word" id="current-word-container"></div>
         <div class="unwritten-words" id="unwritten-words-container"></div>
     </div>
-    <button id="reset-button" onclick="initializeWords()">reset</button>
+    <div id="bottom-buttons">
+        <button id="reset-button" onclick="initializeWords()">reset</button>
+        <button id="stat-button" onclick="advancedStats()">more</button>
+    </div>
+    <div id="advanced-stats-container">
+        <table id="advanced-stats-table">
+            <tr>
+                <th>total visits</th>
+                <th>total attempts</th>
+                <th>total time</th>
+                <th>total chars</th>
+                <th>total mistakes</th>
+                <th>avg cps</th>
+                <th>avg accuracy</th>
+            </tr>
+            <tr>
+                <td class="table-data" id="table-data-total-visits">0</td>
+                <td class="table-data" id="table-data-total-attempts">0</td>
+                <td class="table-data" id="table-data-total-time">0</td>
+                <td class="table-data" id="table-data-total-chars">0</td>
+                <td class="table-data" id="table-data-total-mistakes">0</td>
+                <td class="table-data" id="table-data-avg-cps">0</td>
+                <td class="table-data" id="table-data-avg-accuracy">0 %</td>
+            </tr>
+            <tr>
+            </tr>
+            <tr>
+            </tr>
+        </table>
+    </div>
+    <div id="session-stats-container">
+        <table id="session-stats-table">
+            <tr>
+                <th>session time</th>
+                <th>session attempts</th>
+                <th>session chars</th>
+                <th>session mistakes</th>
+                <th>session cps</th>
+                <th>session accuracy</th>
+            </tr>
+            <tr>
+                <td class="table-data" id="table-data-session-time">0</td>
+                <td class="table-data" id="table-data-session-attempts">0</td>
+                <td class="table-data" id="table-data-session-chars">0</td>
+                <td class="table-data" id="table-data-session-mistakes">0</td>
+                <td class="table-data" id="table-data-session-cps">0</td>
+                <td class="table-data" id="table-data-session-accuracy">0</td>
+            </tr>
+        </table>
+    </div>
 </div>
 <script src="typeracer.js"></script>
 </body>
