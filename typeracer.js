@@ -5,6 +5,7 @@ let specialChars = /[^A-Za-z ]/g;
 
 // html containers
 let resetButtonContainer = document.getElementById('reset-button'),
+    statButtonContainer = document.getElementById('stat-button'),
     writtenWordsContainer = document.getElementById('written-words-container'),
     currentWordContainer = document.getElementById('current-word-container'),
     unwrittenWordsContainer = document.getElementById('unwritten-words-container'),
@@ -233,7 +234,6 @@ function endMeasurement() {
     incrementSessionStorageItem('totalMistakes', mistakesCounter);
 
     updateStatsContainer(cookieToObject(document.cookie));
-
 }
 
 function updateStatsContainer(cookieObject) {
@@ -339,6 +339,8 @@ function advancedStats() {
     }
 
     updateStatsContainer(cookieToObject(document.cookie));
+
+    statButtonContainer.blur()
 }
 
 // Create cookies of none are present.
