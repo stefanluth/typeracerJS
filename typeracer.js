@@ -3,36 +3,35 @@ let apiURL;
 let xmlHttp = new XMLHttpRequest();
 let specialChars = /[^A-Za-z ]/g;
 
-// containers
-let buttonContainer = document.getElementById('reset-button'),
+// html containers
+let resetButtonContainer = document.getElementById('reset-button'),
     writtenWordsContainer = document.getElementById('written-words-container'),
     currentWordContainer = document.getElementById('current-word-container'),
     unwrittenWordsContainer = document.getElementById('unwritten-words-container'),
-    timeContainer = document.getElementById('table-data-time'),
-    cpsContainer = document.getElementById('table-data-cps'),
-    accuracyContainer = document.getElementById('table-data-accuracy'),
-    advancedStatsContainer = document.getElementById('advanced-stats-container'),
+    currentTimeContainer = document.getElementById('table-data-time'),
+    currentCpsContainer = document.getElementById('table-data-cps'),
+    currentAccuracyContainer = document.getElementById('table-data-accuracy'),
+    advancedStatsContainer = document.getElementById('total-stats-container'),
     totalVisitsContainer = document.getElementById('table-data-total-visits'),
     totalAttemptsContainer = document.getElementById('table-data-total-attempts'),
     totalTimeContainer = document.getElementById('table-data-total-time'),
     totalCharsContainer = document.getElementById('table-data-total-chars'),
     totalMistakesContainer = document.getElementById('table-data-total-mistakes'),
-    avgCpsContainer = document.getElementById('table-data-avg-cps'),
-    avgAccuracyContainer = document.getElementById('table-data-avg-accuracy'),
+    totalCpsContainer = document.getElementById('table-data-avg-cps'),
+    totalAccuracyContainer = document.getElementById('table-data-avg-accuracy'),
     sessionTimeContainer = document.getElementById('table-data-session-time'),
     sessionAttemptsContainer = document.getElementById('table-data-session-attempts'),
     sessionCharsContainer = document.getElementById('table-data-session-chars'),
     sessionMistakesContainer = document.getElementById('table-data-session-mistakes'),
-    sessionAvgCpsContainer = document.getElementById('table-data-session-cps'),
-    sessionAvgAccuracyContainer = document.getElementById('table-data-session-accuracy'),
+    sessionCpsContainer = document.getElementById('table-data-session-cps'),
+    sessionAccuracyContainer = document.getElementById('table-data-session-accuracy'),
     currentWordWrittenCharsContainer,
     currentCharContainer,
     currentRestContainer,
     unwrittenWordContainer;
 
 // strings and lists manipulation
-let unwrittenCharacters = '',
-    unwrittenWords = [],
+let unwrittenWords = [],
     finishedWord,
     currentChar = '',
     currentWord = '',
@@ -42,13 +41,14 @@ let unwrittenCharacters = '',
 let timeStarted = 0,
     timeStopped = 0,
     timeDifference = 0,
-    wrongKeysCounter = 0,
-    lengthOfString = 0,
+    mistakesCounter = 0,
+    stringLength = 0,
     charPerSec = 0,
-    accuracy = 0;
+    accuracy = 0,
+    measurementStarted;
 
 
-// cookies
+// cookies & storage
 let defaultCookies = {
         'totalVisits': 0,
         'totalTime': 0,
@@ -58,11 +58,8 @@ let defaultCookies = {
     },
     sessionStorage = window.sessionStorage;
 
-let measurementStarted;
-let keyPressed;
-
-
 function httpGet(wordCount) {
+    // Gets words as a string from the API.
     apiURL = 'https://random-word-api.herokuapp.com/word?number=' + wordCount;
     xmlHttp.open("GET", apiURL, false);
     xmlHttp.send(null);
@@ -70,25 +67,28 @@ function httpGet(wordCount) {
 }
 
 function getWords(wordCount) {
-    unwrittenCharacters = httpGet(wordCount).replaceAll(specialChars, ' ');
+    // Parses the raw string into an array of words and sets the stringLength.
+    let unwrittenCharacters = httpGet(wordCount).replaceAll(specialChars, ' ');
     unwrittenCharacters = unwrittenCharacters.split('   ');
     unwrittenCharacters = unwrittenCharacters.join(' ').trim();
     unwrittenWords = unwrittenCharacters.split(' ');
     unwrittenWords.forEach(function (word, index, array) {
         array[index] = word.trim();
     });
-    lengthOfString = unwrittenWords.join('').length;
+    stringLength = unwrittenWords.join('').length;
 }
 
 function initializeWords() {
+    // Initializes and resets all variables and containers.
     timeStarted = 0;
     timeStopped = 0;
     timeDifference = 0;
-    wrongKeysCounter = 0;
-    lengthOfString = 0;
+    mistakesCounter = 0;
+    stringLength = 0;
     charPerSec = 0;
     accuracy = 0;
     measurementStarted = false;
+
     document.onkeypress = checkCharacter;
 
     currentChar = '';
@@ -97,28 +97,33 @@ function initializeWords() {
 
     writtenWordsContainer.innerHTML = '';
     currentWordContainer.innerHTML = '';
-    timeContainer.innerHTML = '0';
-    cpsContainer.innerHTML = '0';
-    accuracyContainer.innerHTML = '100%';
+    currentTimeContainer.innerHTML = '0';
+    currentCpsContainer.innerHTML = '0';
+    currentAccuracyContainer.innerHTML = '100%';
+    unwrittenWordsContainer.innerHTML = '';
+
+
     if (currentCharContainer !== undefined) {
         currentCharContainer.innerHTML = '';
     }
+
     if (currentWordWrittenCharsContainer !== undefined) {
         currentWordWrittenCharsContainer.innerHTML = '';
     }
+
     if (currentRestContainer !== undefined) {
         currentRestContainer.innerHTML = '';
     }
-    unwrittenWordsContainer.innerHTML = '';
 
     getWords(document.getElementById('wordCountSelect').value);
     fillUnwrittenWords();
     getNextChar();
 
-    buttonContainer.blur();
+    resetButtonContainer.blur();
 }
 
 function fillUnwrittenWords() {
+    // (Re-)fills the container with unwritten words.
     unwrittenWordsContainer.innerHTML = '';
     unwrittenWords.forEach(function (unwrittenWord) {
         unwrittenWordContainer = document.createElement('span');
@@ -129,13 +134,18 @@ function fillUnwrittenWords() {
 }
 
 function getNextChar() {
+    /*
+     * Slices the current word to give the new current character.
+     * Slices the list of unwritten words if current word is empty and resets the written characters.
+     * Moves the finished written word vom current word container to finished words container.
+     * Ends the statistics measurements when it's the last word & character.
+     */
     if (currentWord.length === 0) {
         currentWrittenChars = '';
         currentWord = unwrittenWords.shift() + ' ';
         fillUnwrittenWords();
     }
     currentChar = currentWord[0];
-
     currentWord = currentWord.slice(1);
     currentWordContainer.innerHTML = '';
 
@@ -157,7 +167,13 @@ function getNextChar() {
 }
 
 function checkCharacter(keyPressEvent) {
-    keyPressed = keyPressEvent.key;
+    /*
+     * The main key press function:
+     * Checks if the pressed key is equal to the currently required character.
+     * If true: updates the containers.
+     * If false: increments mistakes counter and highlights the letter red.
+     */
+    let keyPressed = keyPressEvent.key;
 
     if (measurementStarted === false) {
         startMeasurement();
@@ -178,136 +194,159 @@ function checkCharacter(keyPressEvent) {
         getNextChar();
         currentWordContainer.insertAdjacentElement('afterbegin', currentWordWrittenCharsContainer);
     } else {
-        wrongKeysCounter += 1;
+        mistakesCounter += 1;
         currentCharContainer.style.backgroundColor = 'orangered';
     }
 }
 
 function startMeasurement() {
+    // Starts the statistics measurements.
     measurementStarted = true;
     timeStarted = Date.now();
-    wrongKeysCounter = 0;
     incrementDocumentCookieValue('totalAttempts');
 }
 
 function endMeasurement() {
+    // Ends the statistics measurements and updates the statistics containers and cookies/storage with the new values.
     measurementStarted = false;
     document.onkeypress = null;
 
     timeStopped = Date.now();
     timeDifference = ((timeStopped - timeStarted) / 1000).toFixed(2);
 
-    charPerSec = (lengthOfString / timeDifference).toFixed(2);
-    accuracy = ((1 - (wrongKeysCounter / lengthOfString)) * 100).toFixed(2);
+    charPerSec = (stringLength / timeDifference).toFixed(2);
+    accuracy = ((1 - (mistakesCounter / stringLength)) * 100).toFixed(2);
 
-    timeContainer.innerHTML = `${timeDifference} s`;
-    cpsContainer.innerHTML = charPerSec;
-    accuracyContainer.innerHTML = `${accuracy}%`;
+    currentTimeContainer.innerHTML = `${timeDifference} s`;
+    currentCpsContainer.innerHTML = charPerSec;
+    currentAccuracyContainer.innerHTML = `${accuracy}%`;
 
     // cookie storage update
     incrementDocumentCookieValue('totalTime', parseFloat(timeDifference));
-    incrementDocumentCookieValue('totalChars', lengthOfString);
-    incrementDocumentCookieValue('totalMistakes', wrongKeysCounter);
+    incrementDocumentCookieValue('totalChars', stringLength);
+    incrementDocumentCookieValue('totalMistakes', mistakesCounter);
 
     // session storage update
-    incrementSessionStorageItem('totalTime', parseFloat(timeDifference))
-    incrementSessionStorageItem('totalAttempts')
-    incrementSessionStorageItem('totalChars', lengthOfString)
-    incrementSessionStorageItem('totalMistakes', wrongKeysCounter)
+    incrementSessionStorageItem('totalTime', parseFloat(timeDifference));
+    incrementSessionStorageItem('totalAttempts');
+    incrementSessionStorageItem('totalChars', stringLength);
+    incrementSessionStorageItem('totalMistakes', mistakesCounter);
 
-    updateStatsContainer(cookieToObject(document.cookie))
+    updateStatsContainer(cookieToObject(document.cookie));
 
 }
 
 function updateStatsContainer(cookieObject) {
+    // Updates the statistics containers.
     let totalCps = (cookieObject.totalChars / cookieObject.totalTime).toFixed(2);
     let totalAccuracy = ((1 - (cookieObject.totalMistakes / cookieObject.totalChars)) * 100).toFixed(2);
-    let sessionChars = parseInt(sessionStorage.getItem('totalChars'))
-    let sessionMistakes = parseInt(sessionStorage.getItem('totalMistakes'))
-    let sessionTime = parseFloat(sessionStorage.getItem('totalTime')).toFixed(2)
+    let sessionAttempts = sessionStorage.getItem('totalAttempts');
+    let sessionChars = parseInt(sessionStorage.getItem('totalChars'));
+    let sessionMistakes = parseInt(sessionStorage.getItem('totalMistakes'));
+    let sessionTime = parseFloat(sessionStorage.getItem('totalTime')).toFixed(2);
     let sessionCps = sessionChars / sessionTime;
-    let sessionAccuracy = ((1 - (sessionMistakes / sessionChars)) * 100)
+    let sessionAccuracy = ((1 - (sessionMistakes / sessionChars)) * 100);
 
+    if (sessionCps.toString() === 'NaN') {
+        sessionCps = 0;
+        sessionAccuracy = 0;
+    }
+    if (totalCps.toString() === 'NaN') {
+        totalCps = 0;
+        totalAccuracy = 0;
+    }
+
+    // total stats
     totalVisitsContainer.innerHTML = cookieObject.totalVisits;
     totalAttemptsContainer.innerHTML = cookieObject.totalAttempts;
     totalTimeContainer.innerHTML = `${parseFloat(cookieObject.totalTime).toFixed(2)} s`;
     totalCharsContainer.innerHTML = cookieObject.totalChars;
     totalMistakesContainer.innerHTML = cookieObject.totalMistakes;
-    avgCpsContainer.innerHTML = totalCps;
-    avgAccuracyContainer.innerHTML = `${totalAccuracy} %`;
+    totalCpsContainer.innerHTML = totalCps;
+    totalAccuracyContainer.innerHTML = `${totalAccuracy} %`;
 
-    if (sessionCps.toString() === 'NaN') {
-        sessionCps = 0
-        sessionAccuracy = 0
-    }
-
+    // session stats
     sessionTimeContainer.innerHTML = `${sessionTime} s`;
-    sessionAttemptsContainer.innerHTML = sessionStorage.getItem('totalAttempts');
+    sessionAttemptsContainer.innerHTML = `${sessionAttempts}`;
     sessionCharsContainer.innerHTML = `${sessionChars}`;
     sessionMistakesContainer.innerHTML = `${sessionMistakes}`;
-    sessionAvgCpsContainer.innerHTML = sessionCps.toFixed(2)
-    sessionAvgAccuracyContainer.innerHTML = `${sessionAccuracy.toFixed(2)} %`
+    sessionCpsContainer.innerHTML = sessionCps.toFixed(2);
+    sessionAccuracyContainer.innerHTML = `${sessionAccuracy.toFixed(2)} %`;
 }
 
-function setCookie(cookieKey, cookieValue, expiryInMinutes = 10) {
+function setCookie(cookieKey, cookieValue, expiryInMinutes =  60*24) {
+    // Wrapper function to easily a create cookie.
     expiryInMinutes = expiryInMinutes * (60);
     return `${cookieKey}=${cookieValue};Max-Age=${expiryInMinutes};path=/typing_practice_2021;domain=localhost`;
 }
 
 function objectToDocumentCookies(cookieObject) {
+    // Wrapper function to create multiple cookies using an object.
     for (const [key, value] of Object.entries(cookieObject)) {
         document.cookie = setCookie(key, value);
     }
 }
 
 function cookieToObject(cookie) {
+    // Creates an object out of a cookie.
     let separatorIndex;
     let cookieKey, cookieValue;
     let cookieObject = {};
+
     cookie = cookie.split(';');
+
     cookie.forEach(function (element) {
         separatorIndex = element.indexOf('=') + 1;
         cookieKey = element.split('=')[0].trim();
         cookieValue = element.slice(separatorIndex).trim();
         cookieObject[cookieKey] = cookieValue;
     });
+
     return cookieObject;
 }
 
 function incrementDocumentCookieValue(cookieKey, incrementValue = 1) {
+    // Wrapper function to increment a key value in the document.cookie.
     let userCookieObject = cookieToObject(document.cookie);
     let cookieValue = userCookieObject[cookieKey];
+
     if (cookieValue.indexOf('.') !== -1) {
         userCookieObject[cookieKey] = parseFloat(cookieValue) + incrementValue;
     } else {
         userCookieObject[cookieKey] = parseInt(cookieValue) + incrementValue;
     }
+
     return objectToDocumentCookies(userCookieObject);
 }
 
 function incrementSessionStorageItem(sessionKey, incrementValue = 1) {
+    // Wrapper function to increment a key value in the session storage.
     let sessionValue = sessionStorage.getItem(sessionKey);
+
     if (sessionValue.indexOf('.') !== -1) {
-        sessionStorage.setItem(sessionKey, `${parseFloat(sessionValue) + incrementValue}`)
+        sessionStorage.setItem(sessionKey, `${parseFloat(sessionValue) + incrementValue}`);
     } else {
-        sessionStorage.setItem(sessionKey, `${parseInt(sessionValue) + incrementValue}`)
+        sessionStorage.setItem(sessionKey, `${parseInt(sessionValue) + incrementValue}`);
     }
 }
 
 function advancedStats() {
+    // Shows/hides and updates the advanced stats containers.
     if (advancedStatsContainer.style.display === 'none') {
         advancedStatsContainer.style.display = 'block';
     } else {
         advancedStatsContainer.style.display = 'none';
     }
+
     updateStatsContainer(cookieToObject(document.cookie));
 }
 
-
+// Create cookies of none are present.
 if (!document.cookie) {
-    console.log('Setting default cookies')
+    console.log('Setting default cookies');
     objectToDocumentCookies(defaultCookies);
 }
+
 
 incrementDocumentCookieValue('totalVisits', 1);
 
@@ -318,3 +357,5 @@ sessionStorage.setItem('totalTime', '0');
 sessionStorage.setItem('totalAttempts', '0');
 sessionStorage.setItem('totalChars', '0');
 sessionStorage.setItem('totalMistakes', '0');
+
+updateStatsContainer(cookieToObject(document.cookie));

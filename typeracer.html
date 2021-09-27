@@ -47,32 +47,6 @@
         <button id="reset-button" onclick="initializeWords()">reset</button>
         <button id="stat-button" onclick="advancedStats()">more</button>
     </div>
-    <div id="advanced-stats-container">
-        <table id="advanced-stats-table">
-            <tr>
-                <th>total visits</th>
-                <th>total attempts</th>
-                <th>total time</th>
-                <th>total chars</th>
-                <th>total mistakes</th>
-                <th>avg cps</th>
-                <th>avg accuracy</th>
-            </tr>
-            <tr>
-                <td class="table-data" id="table-data-total-visits">0</td>
-                <td class="table-data" id="table-data-total-attempts">0</td>
-                <td class="table-data" id="table-data-total-time">0</td>
-                <td class="table-data" id="table-data-total-chars">0</td>
-                <td class="table-data" id="table-data-total-mistakes">0</td>
-                <td class="table-data" id="table-data-avg-cps">0</td>
-                <td class="table-data" id="table-data-avg-accuracy">0 %</td>
-            </tr>
-            <tr>
-            </tr>
-            <tr>
-            </tr>
-        </table>
-    </div>
     <div id="session-stats-container">
         <table id="session-stats-table">
             <tr>
@@ -89,7 +63,33 @@
                 <td class="table-data" id="table-data-session-chars">0</td>
                 <td class="table-data" id="table-data-session-mistakes">0</td>
                 <td class="table-data" id="table-data-session-cps">0</td>
-                <td class="table-data" id="table-data-session-accuracy">0</td>
+                <td class="table-data" id="table-data-session-accuracy">0 %</td>
+            </tr>
+        </table>
+    </div>
+    <div id="total-stats-container">
+        <table id="total-stats-table">
+            <tr>
+                <th>total time</th>
+                <th>total attempts</th>
+                <th>total chars</th>
+                <th>total mistakes</th>
+                <th>avg cps</th>
+                <th>avg accuracy</th>
+            </tr>
+            <tr>
+                <td class="table-data" id="table-data-total-time">0</td>
+                <td class="table-data" id="table-data-total-attempts">0</td>
+                <td class="table-data" id="table-data-total-chars">0</td>
+                <td class="table-data" id="table-data-total-mistakes">0</td>
+                <td class="table-data" id="table-data-avg-cps">0</td>
+                <td class="table-data" id="table-data-avg-accuracy">0 %</td>
+            </tr>
+            <tr>
+                <th>total visits</th>
+            </tr>
+            <tr>
+                <td class="table-data" id="table-data-total-visits">0</td>
             </tr>
         </table>
     </div>
