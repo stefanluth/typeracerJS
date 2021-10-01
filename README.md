@@ -1,1 +1,1 @@
-# typing_practice_2021
+# typeracer
